@@ -1,16 +1,8 @@
 from sopel.module import commands
-from threading import Timer
-
 
 players = []
 ongoing = False
-
-
-def countdown():
-    print("The time is to sign up is over!")
-
-t = Timer(5.0, countdown())
-
+owner = 'VereorNox'
 
 
 
@@ -24,9 +16,6 @@ def start(bot, trigger):
     bot.say("Someone has started a game of Secret Hitler! Type .join to join!")
     players.append(trigger.nick)
     bot.say(trigger.nick+" has joined up! Type .flee to leave with your tail tucked between your legs!")
-    t.start()
-
-
 
 
 @commands('join')
@@ -36,6 +25,19 @@ def join(bot, trigger):
         bot.say(trigger.nick+" has joined up!")
     else:
         bot.say("You're already signed up for the game! Type .flee to leave with your tail tucked between your legs!")
+
+
+@commands('quit')
+def stopGame(bot, trigger):
+    if ongoing is False:
+        if trigger.nick in players[0]:
+            bot.say("The game was aborted by the creator "+trigger.nick)
+        else:
+            bot.say("You didn't start this game, you fool!")
+    elif trigger.nick is owner:
+        bot.say("You can't stop a game once started!")
+
+
 
 @commands('flee')
 def quit(bot, trigger):
