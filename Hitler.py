@@ -111,6 +111,8 @@ def assignPlayers(bot):
             if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
                     bot.memory['secret_hitler']['liberals']:
                 random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
+#TODO: MAKE THIS INTO ONE FUNCTION FOR FUCK'S SAKE
+
 
 
 @commands('hitler')
