@@ -154,32 +154,20 @@ def start(bot, trigger):
 @commands('nominate')
 def nominateChancellor(bot, trigger):
     if trigger.nick is bot.memory['secret_hitler']['president']:
-        
+        if trigger.group(2) in bot.memory['secret_hitler']['president']:
+            bot.say("You can't nominate yourself, Mr. President.")
+        elif trigger.group(2) in bot.memory['secret_hitler']['players']:
+            if trigger.group(2) not in bot.memory['secret_hitler']['formerChancellor']:
+                bot.memory['secret_hitler']['chancellorCandidate'] = trigger.group(2)
+                bot.say(trigger.group(2)+" has been nominated as Chancellor.")
+            else:
+                bot.say("You cannot elect the same Chancellor twice in succession, there are term limits.")
+
     else:
         bot.say("You're not the president, "+trigger.nick, '#games')
 
-@commands('quit')
-def stopGame(bot, trigger):
-    if ongoing is False:
-        if trigger.nick is players[0]:
-            bot.say("The game was aborted by the creator "+trigger.nick)
-        else:
-            bot.say("You didn't start this game, you fool!")
-    elif trigger.nick is owner:
-        bot.say("You can't stop a game once started!")
-
-
-
-@commands('flee')
-def endGame(bot, trigger):
-    if ongoing is False:
-        if trigger.nick in bot.memory['secret_hitler']['players']:
-            bot.memory['secret_hitler']['players'].remove(trigger.nick)
-            bot.say(trigger.nick+" has left the game. Coward.")
-        else:
-            bot.say("You're not signed up you dimwit!")
-    else:
-        bot.say("The game is still ongoing, you dimwit, you can't leave until Hilter is dead!")
+#TODO: LEAVE FUNCTION BEFORE GAME STARTS
+#TODO: ABORT FUNCTION TO IMMEDIATELY END GAME
 
 
 
