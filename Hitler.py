@@ -1,4 +1,5 @@
 from sopel.module import commands
+import random
 
 players = []
 global ongoing
@@ -53,6 +54,13 @@ def endGame(bot, trigger):
         bot.say("The game is still ongoing, you dimwit, you can't leave until Hilter is dead!")
 
 
+
+
+
+
+
+
+
 def hitlerGame:
    player_amount = len(players)
    if player_amount < 5:
@@ -61,4 +69,3 @@ def hitlerGame:
        return
    else:
        ongoing = True
-       while finished is not 1:
