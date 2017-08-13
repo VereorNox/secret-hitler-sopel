@@ -5,11 +5,18 @@ import random
 def setup(bot):
     def newGame(bot):
         bot.memory['secret_hitler'] = { 'players':[],
-                                        'setupPhase':False
+                                        'setupPhase':False,
                                         'boardState':None, # three board states depending on number of players
                                         'liberalPolicies':0, # Liberals win with 5 Liberal Policies enacted
                                         'failedElections':0, # Maximum of 3 failed Elections, else Chaos
                                         'fascistPolicies':0, # Fascists win with 3 Policies and Hitler as Chancellor
+                                        'president':None,
+                                        'chancellorCandidate':None,
+                                        'chancellor':None,
+                                        'formerPresident':None,
+                                        'formerChancellor':None,
+                                        'yesVotes':0,
+                                        'noVotes':0,
                                         'fascistDeck':11,
                                         'liberalDeck':6,
                                         'liberals':[],
@@ -24,7 +31,9 @@ def setup(bot):
 
 
 def assignPlayers(bot):
-    if len(bot.memory['secret_hitler']['players']) is 5:
+    if len(bot.memory['secret_hitler']['players']) < 5:
+        bot.say("Sorry, but not enough players have been gathered.", '#games')
+    elif len(bot.memory['secret_hitler']['players']) is 5:
         bot.memory['secret_hitler']['boardState'] = 0
         bot.memory['secret_hitler']['liberalPlayers'] = 3
         bot.memory['secret_hitler']['fascistPlayers'] = 2
@@ -136,9 +145,18 @@ def start(bot, trigger):
             bot.say("You're a fascist! Pass three fascist policies and elect Hitler as Chancellor to win!", player)
         bot.memory['secret_hitler']['Hitler'] = random.choice(bot.memory['secret_hitler']['fascists'])
         bot.say("You're also Hitler! Confuse the enemies by pretending to be liberal, trusting your allies to lead you to victory!", bot.memory['secret_hitler']['Hitler'])
+        bot.say("The assembly of the Reichstag opens!", '#games')
+        bot.memory['secret_hitler']['president'] = random.choice(bot.memory['secret_hitler']['players'])
+        bot.say(bot.memory['secret_hitler']['president']+" has been elected as President! President, make your choice! Who do you .nominate as Chancellor?")
     else:
         bot.say("No game has been opened yet. Type .hitler to start a game and .start to start once enough players have assembled!")
 
+@commands('nominate')
+def nominateChancellor(bot, trigger):
+    if trigger.nick is bot.memory['secret_hitler']['president']:
+        
+    else:
+        bot.say("You're not the president, "+trigger.nick, '#games')
 
 @commands('quit')
 def stopGame(bot, trigger):
@@ -166,16 +184,3 @@ def endGame(bot, trigger):
 
 
 
-
-
-
-
-
-def hitlerGame:
-   player_amount = len(players)
-   if player_amount < 5:
-       return
-   elif player_amount > 10:
-       return
-   else:
-       ongoing = True
