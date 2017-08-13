@@ -1,7 +1,11 @@
 from sopel.module import commands
 
+
 players = []
 ongoing = False
+
+
+
 
 @commands('hello')
 def hello(bot, trigger):
@@ -13,6 +17,8 @@ def start(bot, trigger):
     bot.say("Someone has started a game of Secret Hitler! Type .join to join!")
     players.append(trigger.nick)
     bot.say(trigger.nick+" has joined up! Type .flee to leave with your tail tucked between your legs!")
+
+
 
 
 @commands('join')
