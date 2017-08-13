@@ -14,6 +14,7 @@ def setup(bot):
                                         'liberalDeck':6,
                                         'liberals':[],
                                         'fascists':[],
+                                        'dead':[],
                                         'fascistPlayers':0, # 2 for 5-6 players, 3 for 7-8 players, 4 for 9-10 players, includes Hitler
                                         'liberalPlayers':0, # 3-4 for 5-6 players, 4-5 for 7-8 players, 5-6 for 9-10 players
                                         'Hitler':None, # randomly chosen among the fascist players
@@ -22,9 +23,85 @@ def setup(bot):
 
 
 
-@commands('hello')
-def hello(bot, trigger):
-    bot.say("Hello!")
+def assignPlayers(bot):
+    if len(bot.memory['secret_hitler']['players']) is 5:
+        bot.memory['secret_hitler']['boardState'] = 0
+        bot.memory['secret_hitler']['liberalPlayers'] = 3
+        bot.memory['secret_hitler']['fascistPlayers'] = 2
+        while len(bot.memory['secret_hitler']['liberals']) < 3:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
+        while len(bot.memory['secret_hitler']['fascists']) < 2:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
+
+
+    elif len(bot.memory['secret_hitler']['players']) is 6:
+        bot.memory['secret_hitler']['boardState'] = 0
+        bot.memory['secret_hitler']['liberalPlayers'] = 4
+        bot.memory['secret_hitler']['fascistPlayers'] = 2
+        while len(bot.memory['secret_hitler']['liberals']) < 4:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
+        while len(bot.memory['secret_hitler']['fascists']) < 2:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
+
+    elif len(bot.memory['secret_hitler']['players']) is 7:
+        bot.memory['secret_hitler']['boardState'] = 1
+        bot.memory['secret_hitler']['liberalPlayers'] = 4
+        bot.memory['secret_hitler']['fascistPlayers'] = 3
+        while len(bot.memory['secret_hitler']['liberals']) < 4:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
+        while len(bot.memory['secret_hitler']['fascists']) < 3:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
+
+    elif len(bot.memory['secret_hitler']['players']) is 8:
+        bot.memory['secret_hitler']['boardState'] = 1
+        bot.memory['secret_hitler']['liberalPlayers'] = 5
+        bot.memory['secret_hitler']['fascistPlayers'] = 3
+        while len(bot.memory['secret_hitler']['liberals']) < 5:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
+        while len(bot.memory['secret_hitler']['fascists']) < 3:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
+
+    elif len(bot.memory['secret_hitler']['players']) is 9:
+        bot.memory['secret_hitler']['boardState'] = 2
+        bot.memory['secret_hitler']['liberalPlayers'] = 5
+        bot.memory['secret_hitler']['fascistPlayers'] = 4
+        while len(bot.memory['secret_hitler']['liberals']) < 5:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
+        while len(bot.memory['secret_hitler']['fascists']) < 4:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
+
+    elif len(bot.memory['secret_hitler']['players']) is 10:
+        bot.memory['secret_hitler']['boardState'] = 2
+        bot.memory['secret_hitler']['liberalPlayers'] = 6
+        bot.memory['secret_hitler']['fascistPlayers'] = 4
+        while len(bot.memory['secret_hitler']['liberals']) < 6:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
+        while len(bot.memory['secret_hitler']['fascists']) < 4:
+            if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
+                    bot.memory['secret_hitler']['liberals']:
+                random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
 
 
 @commands('hitler')
@@ -51,68 +128,16 @@ def joinGame(bot, trigger):
 @commands('start')
 def start(bot, trigger):
     if bot.memory['secret_hitler']['setupPhase'] is True:
-        if len(bot.memory['secret_hitler']['players']) is 5:
-            bot.memory['secret_hitler']['liberalPlayers'] = 3
-            bot.memory['secret_hitler']['fascistPlayers'] = 2
-            while len(bot.memory['secret_hitler']['liberals']) < 3:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
-            while len(bot.memory['secret_hitler']['fascists']) < 2:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
-
-
-        elif len(bot.memory['secret_hitler']['players']) is 6:
-            bot.memory['secret_hitler']['liberalPlayers'] = 4
-            bot.memory['secret_hitler']['fascistPlayers'] = 2
-            while len(bot.memory['secret_hitler']['liberals']) < 4:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
-            while len(bot.memory['secret_hitler']['fascists']) < 2:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
-
-        elif len(bot.memory['secret_hitler']['players']) is 7:
-            bot.memory['secret_hitler']['liberalPlayers'] = 4
-            bot.memory['secret_hitler']['fascistPlayers'] = 3
-            while len(bot.memory['secret_hitler']['liberals']) < 4:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
-            while len(bot.memory['secret_hitler']['fascists']) < 3:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
-
-        elif len(bot.memory['secret_hitler']['players']) is 8:
-            bot.memory['secret_hitler']['liberalPlayers'] = 5
-            bot.memory['secret_hitler']['fascistPlayers'] = 3
-            while len(bot.memory['secret_hitler']['liberals']) < 5:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
-            while len(bot.memory['secret_hitler']['fascists']) < 3:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
-
-        elif len(bot.memory['secret_hitler']['players']) is 9:
-            bot.memory['secret_hitler']['liberalPlayers'] = 5
-            bot.memory['secret_hitler']['fascistPlayers'] = 4
-            while len(bot.memory['secret_hitler']['liberals']) < 5:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
-            while len(bot.memory['secret_hitler']['fascists']) < 4:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
-
-        elif len(bot.memory['secret_hitler']['players']) is 10:
-            bot.memory['secret_hitler']['liberalPlayers'] = 6
-            bot.memory['secret_hitler']['fascistPlayers'] = 4
-            while len(bot.memory['secret_hitler']['liberals']) < 6:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
-            while len(bot.memory['secret_hitler']['fascists']) < 4:
-                if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
-                    random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
-        else:
-            bot.say("No game has been opened yet. Type .hitler to start a game and .start to start once enough players have assembled!")
+        bot.memory['secret_hitler']['setupPhase'] = False
+        assignPlayers(bot)
+        for player in bot.memory['secret_hitler']['liberals']:
+            bot.say("You're a liberal! Prevent Hitler from taking over by passing five liberal policies!", player)
+        for player in bot.memory['secret_hitler']['fascists']:
+            bot.say("You're a fascist! Pass three fascist policies and elect Hitler as Chancellor to win!", player)
+        bot.memory['secret_hitler']['Hitler'] = random.choice(bot.memory['secret_hitler']['fascists'])
+        bot.say("You're also Hitler! Confuse the enemies by pretending to be liberal, trusting your allies to lead you to victory!", bot.memory['secret_hitler']['Hitler'])
+    else:
+        bot.say("No game has been opened yet. Type .hitler to start a game and .start to start once enough players have assembled!")
 
 
 @commands('quit')
