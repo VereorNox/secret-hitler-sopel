@@ -3,9 +3,9 @@ import random
 
 
 def newgame(bot):
-    bot.memory['secret_hitler'] = {'players': [],
+    bot.memory['secret_hitler'] = {'players': ['A', 'B', 'C', 'D', 'E'],
                                    'setup_phase': False,
-                                   'board_state': None,  # three board states depending on number of players
+                                   'board_state': 0,  # three board states depending on number of players
                                    'liberal_policies': 0,  # Liberals win with 5 Liberal Policies enacted
                                    'failed_votes': 0,  # Maximum of 3 failed Elections, else Chaos
                                    'fascist_policies': 0,  # Fascists win with 3 Policies and Hitler as Chancellor
@@ -31,42 +31,42 @@ def newgame(bot):
                                    'veto_switch': False,
                                    'policy_phase': False,
                                    'dead_players': [],
-                                   'numOfFascists': 0,
+                                   'num_of_fascists': 0,
                                    # 2 for 5-6 players, 3 for 7-8 players, 4 for 9-10 players, includes Hitler
-                                   'numOfLiberals': 0,
+                                   'num_of_liberals': 0,
                                    # 3-4 for 5-6 players, 4-5 for 7-8 players, 5-6 for 9-10 players
                                    'Hitler': None,  # randomly chosen among the fascist players
                                    'game_ongoing': False,
                                    'owner': 'VereorNox'}
 
 
-def assign_fascists(bot, int):
+def assign_fascists(bot, n):
     """Assigns random fascists until the number of fascists is full."""
-    if int is 5 or 6:
+    if n is 5 or 6:
         bot.memory['secret_hitler']['board_state'] = 0
-        bot.memory['secret_hitler']['numOfFascists'] = 2
-    elif int is 7 or 8:
+        bot.memory['secret_hitler']['num_of_fascists'] = 2
+    elif n is 7 or 8:
         bot.memory['secret_hitler']['board_state'] = 1
-        bot.memory['secret_hitler']['numOfFascists'] = 3
-    elif int is 9 or 10:
+        bot.memory['secret_hitler']['num_of_fascists'] = 3
+    elif n is 9 or 10:
         bot.memory['secret_hitler']['board_state'] = 2
-        bot.memory['secret_hitler']['numOfFascists'] = 4
-    while bot.memory['secret_hitler']['numOfFascists'] <= int:
+        bot.memory['secret_hitler']['num_of_fascists'] = 4
+    while bot.memory['secret_hitler']['num_of_fascists'] <= n:
         if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
             bot.memory['secret_hitler']['fascists'].append(random.choice(bot.memory['secret_hitler']['players']))
 
 
 
-def assign_liberals(bot, int):
-    if int is 5:
-        bot.memory['secret_hitler']['numOfLiberals'] = 3
-    if int is 6 or 7:
-        bot.memory['secret_hitler']['numOfLiberals'] = 4
-    if int is 8 or 9:
-        bot.memory['secret_hitler']['numOfLiberals'] = 5
-    if int is 10:
-        bot.memory['secret_hitler']['numOfLiberals'] = 6
-    while bot.memory['secret_hitler']['numOfLiberals'] <= int:
+def assign_liberals(bot, n):
+    if n is 5:
+        bot.memory['secret_hitler']['num_of_liberals'] = 3
+    if n is 6 or 7:
+        bot.memory['secret_hitler']['num_of_liberals'] = 4
+    if n is 8 or 9:
+        bot.memory['secret_hitler']['num_of_liberals'] = 5
+    if n is 10:
+        bot.memory['secret_hitler']['num_of_liberals'] = 6
+    while bot.memory['secret_hitler']['num_of_liberals'] <= n:
         if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
             bot.memory['secret_hitler']['liberals'].append(random.choice(bot.memory['secret_hitler']['players']))
 
@@ -415,6 +415,6 @@ def kill(bot, trigger):
 def abortGame(bot, trigger):
     if trigger.nick == bot.memory['secret_hitler']['owner']:
         bot.say("The game has been stopped by the administration. To start a new game, type .hitler", '#games')
-        bot.memory['secret_hitler']['game_ongoing'] = False 
+        bot.memory['secret_hitler']['game_ongoing'] = False
         newgame(bot)
         bot.memory['secret_hitler']['setup_phase'] = False
