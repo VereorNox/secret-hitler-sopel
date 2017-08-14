@@ -24,6 +24,7 @@ def newgame(bot):
                                    'liberals': [],
                                    'fascists': [],
                                    'killSwitch': False,
+                                   'vetoSwitch': True,
                                    'deadPlayers': [],
                                    'numOfFascists': 0,
                                    # 2 for 5-6 players, 3 for 7-8 players, 4 for 9-10 players, includes Hitler
@@ -86,6 +87,39 @@ def pickCard(bot, trigger):
         bot.memory['secret_hitler']['drawnCards'].remove(trigger.group(2))
         bot.say("The president has discarded a card. Enact the one you want with .enact [card]!",
                 bot.memory['secret_hitler']['chancellor'])
+
+def board_state(bot, trigger):
+    if bot.memory['secret_hitler']['boardState'] == 0:
+        if bot.memory['secret_hitler']['fascistPolicies'] == 3:
+            # TODO: President gets to take a look at the top three cards
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 4:
+            # TODO: PRESIDENT KILLS SOMEONE
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 5:
+            # TODO: PRESIDENT KILLS SOMEONE, VETO POWER UNLOCKED
+    elif bot.memory['secret_hitler']['boardState'] == 1:
+        if bot.memory['secret_hitler']['fascistPolicies'] == 2:
+            # TODO: President checks the identity card of one player in private.
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 3:
+            # TODO: Special election -> Pres chooses next pres
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 4:
+            # TODO: Kill
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 5:
+            # TODO: Kill, Veto
+    elif bot.memory['secret_hitler']['boardState'] == 2:
+        if bot.memory['secret_hitler']['fascistPolicies'] == 1:
+            # TODO: President checks the identity card of one player in private.
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 2:
+            # TODO: President checks the identity card of one player in private.
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 3:
+            # TODO: Special election -> Pres chooses next pres
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 4:
+            # TODO: Kill
+        elif bot.memory['secret_hitler']['fascistPolicies'] == 5:
+            # TODO: Kill, Veto
+
+
+
+
 
 @require_privmsg
 @commands('enact')
