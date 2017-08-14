@@ -111,8 +111,16 @@ def start(bot, trigger):
         for player in bot.memory['secret_hitler']['fascists']:
             bot.say("You're a fascist! Pass three fascist policies and elect Hitler as Chancellor to win!", player)
         bot.memory['secret_hitler']['Hitler'] = random.choice(bot.memory['secret_hitler']['fascists'])
+        for player in bot.memory['secret_hitler']['fascists']:
+            if len(bot.memory['secret_hitler']['players']) >= 7:
+                if player != bot.memory['secret_hitler']['Hitler']:
+                    bot.say("The other fascists are"+bot.memory['secret_hitler']['fascists'])
+                    bot.say(bot.memory['secret_hitler']['Hitler']+"is Hitler!")
+            else:
+                bot.say("The other fascists are" + bot.memory['secret_hitler']['fascists'])
+                bot.say(bot.memory['secret_hitler']['Hitler'] + "is Hitler!")
         bot.say(
-            "You're also Hitler! Confuse the enemies by pretending to be liberal, trusting your allies to lead you to victory!",
+            "You're Hitler! Confuse the enemies by pretending to be liberal, trusting your allies to lead you to victory!",
             bot.memory['secret_hitler']['Hitler'])
         bot.say("The assembly of the Reichstag opens!", '#games')
         bot.memory['secret_hitler']['president'] = random.choice(bot.memory['secret_hitler']['players'])
