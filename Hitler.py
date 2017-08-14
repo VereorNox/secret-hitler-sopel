@@ -76,9 +76,46 @@ def checkVotes(bot, trigger):
     if bot.memory['secret_hitler']['failedVotes'] == 3:
         bot.say("The country is thrown into chaos! Take the top card of the deck and enact that policy!")
         return True
+    else:
+        return False
 
-@commands('enact')
+@require_privmsg
+@commands('discard')
 def pickCard(bot, trigger):
+    if trigger.nick is not bot.memory['secret_hitler']['president']:
+        bot.say("You can't pick anything if you can't see anything.")
+    elif trigger.group(2) not in bot.memory['secret_hitler']['drawnCards']:
+        bot.say("Mr. President, you have to discard a card that was picked.", trigger.nick)
+    else:
+        bot.memory['secret_hitler']['discardPile'].append(bot.memory['secret_hitler']['drawnCards'][trigger.group(2)])
+        bot.memory['secret_hitler']['drawnCards'].remove(trigger.group(2))
+        bot.say("The president has discarded a card. Enact the one you want with .enact [card]!",
+                bot.memory['secret_hitler']['chancellor'])
+
+@require_privmsg
+@commands('enact')
+def enactPolicy(bot, trigger):
+    if trigger.nick is not bot.memory['secret_hitler']['chancellor']:
+        bot.say("You're not the Chancellor. Piss off.")
+    elif trigger.group(2) not in bot.memory['secret_hitler']['drawnCards']:
+        bot.say("Herr Chancellor, you have to discard a card that was picked.", trigger.nick)
+    else:
+        if trigger.group(2) == 'Liberal':
+            bot.memory['secret_hitler']['liberalPolicies'] += 1
+            del bot.memory['secret_hitler']['drawnCards'][trigger.group(2)]
+            bot.memory['secret_hitler']['discardPile'].append(bot.memory['secret_hitler']['drawnCards'])
+            del bot.memory['secret_hitler']['drawnCards'][:]
+        else:
+            bot.memory['secret_hitler']['fascistPolicies'] += 1
+            del bot.memory['secret_hitler']['drawnCards'][trigger.group(2)]
+            bot.memory['secret_hitler']['discardPile'].append(bot.memory['secret_hitler']['drawnCards'])
+            del bot.memory['secret_hitler']['drawnCards'][:]
+
+
+
+
+
+
 
 
 
@@ -196,14 +233,20 @@ def tallyVotes(bot, trigger):
             del bot.memory['secret_hitler']['deck'][0]
             del bot.memory['secret_hitler']['deck'][1]
             del bot.memory['secret_hitler']['deck'][2]
-            bot.say("Pick one of these cards with .enact [card]:"+bot.memory['secret_hitler']['drawnCards'])
+            bot.say("Pick one of these cards with .discard [card]:"+bot.memory['secret_hitler']['drawnCards'])
 
         else:
             bot.say("The vote has failed! The presidency moves on!")
             bot.memory['secret_hitler']['failedVotes'] += 1
             if checkVotes(bot, trigger):
-                # TODO: Function that forces the next card to be played
-                return
+                bot.memory['secret_hitler']['failedElections'] = 0
+                nextPolicy = bot.memory['secret_hitler']['deck'][0]
+                bot.memory['secret_hitler']['discardPile'].append(bot.memory['secret_hitler']['deck'][0])
+                del bot.memory['secret_hitler']['deck'][0]
+                if nextPolicy is 'Liberal':
+                    bot.memory['secret_hitler']['liberalPolicies'] += 1
+                else:
+                    bot.memory['secret_hitler']['fascistPolicies'] += 1
 
 
 
