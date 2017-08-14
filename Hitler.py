@@ -11,6 +11,7 @@ def newgame(bot):
                                    'fascistPolicies': 0,  # Fascists win with 3 Policies and Hitler as Chancellor
                                    'president': None,
                                    'chancellorCandidate': None,
+                                   'formerPresident': None,
                                    'election_phase': False,
                                    'chancellor': None,
                                    'players_who_voted': {},
@@ -135,6 +136,18 @@ def board_state(bot, trigger):
         else:
             turn(bot, trigger)
 
+@commands('endorse')
+def special_election(bot, trigger):
+    if bot.memory['secret_hitler']['special_election_phase'] == True and trigger.nick == bot.memory['secret_hitler']['president']:
+        if trigger.group(2) != bot.memory['secret_hitler']['president']:
+            bot.memory['secret_hitler']['formerPresident'] = bot.memory['secret_hitler']['president']
+            bot.memory['secret_hitler']['president'] = trigger.group(2)
+            bot.say(trigger.group(2)+" has been made president after a special election! Make your choice, president, who do you propose as chancellor?")
+            bot.memory['secret_hitler']['election_phase'] = True
+        else:
+            bot.say("You can't choose yourself to be president again, there are term limits!", '#games')
+
+
 @commands('veto')
 def veto(bot, trigger):
     if bot.memory['secret_hitler']['vetoPhase'] == True:
@@ -160,7 +173,11 @@ def turn(bot, trigger):
     if bot.memory['secret_hitler']['next_turn'] == True:
         bot.say("The next turn has started!", '#games')
         index = bot.memory['secret_hitler']['players'].index(bot.memory['secret_hitler']['president'])
-        bot.memory['secret_hitler']['president'] = bot.memory['secret_hitler']['players'][index % len(bot.memory['secret_hitler']['players'])]
+        if bot.memory['secret_hitler']['special_election_phase'] == True:
+            bot.memory['secret_hitler']['president'] = bot.memory['secret_hitler']['formerPresident']
+            bot.memory['secret_hitler']['president'] = bot.memory['secret_hitler']['players'][index % len(bot.memory['secret_hitler']['players'])]
+        else:
+            bot.memory['secret_hitler']['president'] = bot.memory['secret_hitler']['players'][index % len(bot.memory['secret_hitler']['players'])]
         bot.memory['secret_hitler']['formerChancellor'] = bot.memory['secret_hitler']['Chancellor']
         bot.memory['secret_hitler']['election_phase'] = True
         bot.memory['secret_hitler']['vote_phase'] = False
@@ -395,4 +412,3 @@ def abortGame(bot, trigger):
         bot.say("The game has been stopped by the administration. To start a new game, type .hitler", '#games')
         bot.memory['secret_hitler']['gameOngoing'] = False
         newgame(bot)
-        
