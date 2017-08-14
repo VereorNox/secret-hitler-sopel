@@ -13,19 +13,18 @@ def newgame(bot):
                                    'chancellorCandidate': None,
                                    'electionState': False,
                                    'chancellor': None,
-                                   'hasVoted': {},
+                                   'players_who_voted': {},
                                    'formerPresident': None,
                                    'formerChancellor': None,
                                    'yesVotes': 0,
                                    'noVotes': 0,
                                    'deck':['Liberal', 'Liberal', 'Liberal', 'Liberal', 'Liberal', 'Liberal', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist'],
                                    'drawnCards':[],
-                                   'fascistDeck': 11,
-                                   'liberalDeck': 6,
                                    'discardPile': [],
                                    'liberals': [],
                                    'fascists': [],
-                                   'dead': [],
+                                   'killSwitch': False,
+                                   'deadPlayers': [],
                                    'numOfFascists': 0,
                                    # 2 for 5-6 players, 3 for 7-8 players, 4 for 9-10 players, includes Hitler
                                    'numOfLiberals': 0,
@@ -109,7 +108,7 @@ def enactPolicy(bot, trigger):
 
 
 @commands('hitler')
-def start(bot, trigger):
+def prepare_to_start(bot, trigger):
     print(bot.memory.keys())
     print("HITLER!")
     if 'secret_hitler' not in bot.memory or bot.memory['secret_hitler']['gameOngoing'] is False:
@@ -126,10 +125,11 @@ def start(bot, trigger):
 
 @commands('join')
 def joinGame(bot, trigger):
-    if bot.memory['secret_hitler']['setupPhase'] is True:
-        if trigger.nick not in bot.memory['secret_hitler']['players']:
+    if bot.memory['secret_hitler']['setupPhase'] == True:
+        if trigger.nick not in bot.memory['secret_hitler']['players'] and len(bot.memory['secret_hitler']['players']) < 10:
             bot.memory['secret_hitler']['players'].append(trigger.nick)
             bot.say(trigger.nick + " has joined up!")
+            bot.say("You need at least "+(5-len(bot.memory['secret_hitler']['players']))+" more players to start the game!")
         else:
             bot.say(
                 "You're already signed up for the game! Type .flee to leave with your tail tucked between your legs!", '#games')
@@ -137,7 +137,7 @@ def joinGame(bot, trigger):
 
 @commands('start')
 def startingGame(bot, trigger):
-    if bot.memory['secret_hitler']['setupPhase'] is True:
+    if bot.memory['secret_hitler']['setupPhase'] == True:
         if len(bot.memory['secret_hitler']['players']) < 5 or len(bot.memory['secret_hitler']['players']) > 10:
             bot.say("Not enough or too many players. 5-10 is acceptable.", '#games')
             return
@@ -189,11 +189,11 @@ def nominateChancellor(bot, trigger):
 @require_privmsg
 @commands('yes')
 def ja(bot, trigger):
-    if bot.memory['secret_hitler']['electionState'] is True:
+    if bot.memory['secret_hitler']['electionState'] == True:
         if trigger.nick in bot.memory['secret_hitler']['players']:
-            if trigger.nick not in bot.memory['secret_hitler']['hasVoted']:
+            if trigger.nick not in bot.memory['secret_hitler']['players_who_voted']:
                 bot.memory['secret_hitler']['yesVotes'] += 1
-                bot.memory['secret_hitler']['hasVoted'].update({trigger.nick: 'Yes'})
+                bot.memory['secret_hitler']['players_who_voted'].update({trigger.nick: 'Yes'})
         else:
             bot.say("You're not a player you fuckwit!", trigger.nick)
 
@@ -202,21 +202,21 @@ def ja(bot, trigger):
 @require_privmsg
 @commands('no')
 def nein(bot, trigger):
-    if bot.memory['secret_hitler']['electionState'] is True:
+    if bot.memory['secret_hitler']['electionState'] == True:
         if trigger.nick in bot.memory['secret_hitler']['players']:
-            if trigger.nick not in bot.memory['secret_hitler']['hasVoted']:
+            if trigger.nick not in bot.memory['secret_hitler']['players_who_voted']:
                 bot.memory['secret_hitler']['noVotes'] += 1
-                bot.memory['secret_hitler']['hasVoted'].update({trigger.nick: 'No'})
+                bot.memory['secret_hitler']['players_who_voted'].update({trigger.nick: 'No'})
             else:
                 bot.say("You're already voted!", trigger.nick)
         else:
             bot.say("You're not a player you fuckwit!", trigger.nick)
 
 def tallyVotes(bot, trigger):
-    if len(bot.memory['secret_hitler']['hasVoted'].keys()) == len(bot.memory['secret_hitler']['hasVoted'].keys()):
+    if len(bot.memory['secret_hitler']['players_who_voted'].keys()) == len(bot.memory['secret_hitler']['players_who_voted'].keys()):
         bot.memory['secret_hitler']['electionState'] = False
         bot.say("The voting has closed!", '#games')
-        bot.say(bot.memory['secret_hitler']['hasVoted'], '#games')
+        bot.say(bot.memory['secret_hitler']['players_who_voted'], '#games')
         if bot.memory['secret_hitler']['yesVotes'] > bot.memory['secret_hitler']['noVotes']:
             bot.say(bot.memory['secret_hitler']['chancellorCandidate']+" has been elected Chancellor!", '#games')
             bot.memory['secret_hitler']['chancellor'] = bot.memory['secret_hitler']['chancellorCandidate']
@@ -243,7 +243,25 @@ def tallyVotes(bot, trigger):
                     bot.memory['secret_hitler']['fascistPolicies'] += 1
 
 
+@commands('flee')
+def flee(bot, trigger):
+    if bot.memory['secret_hitler']['setupPhase'] == True and trigger.nick in bot.memory['secret_hitler']['players']:
+        bot.memory['secret_hitler']['players'].remove(trigger.nick)
+        bot.say(trigger.nick+" has deserted. The new government will court martial them at a later date.")
+    else:
+        bot.say("The game is going on or you're not signed up! Please wait until the game is over to desert!")
 
+
+@commands('shoot')
+def kill(bot, trigger):
+    if trigger.nick is bot.memory['secret_hitler']['president'] and bot.memory['secret_hitler']['killSwitch'] == True:
+        bot.memory['secret_hitler']['deadPlayers'].append(trigger.group(2))
+        if trigger.group(2) in bot.memory['secret_hitler']['fascists']:
+            bot.say(trigger.group(2)+" has been executed by the order of the president...")
+            bot.memory['secret_hitler']['fascists'].remove(trigger.group(2))
+        elif trigger.group(2) in bot.memory['secret_hitler']['liberals']:
+            bot.say(trigger.group(2)+" has been executed by the order of the president...")
+            bot.memory['secret_hitler']['liberals'].remove(trigger.group(2))
 
 
 
