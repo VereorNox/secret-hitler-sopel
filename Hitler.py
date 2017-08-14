@@ -1,15 +1,13 @@
 from sopel.module import commands, require_privmsg
 import random
 
-def system(bot):
-    newgame(bot)
 
 def newgame(bot):
     bot.memory['secret_hitler'] = {'players': [],
                                    'setupPhase': False,
                                    'boardState': None,  # three board states depending on number of players
                                    'liberalPolicies': 0,  # Liberals win with 5 Liberal Policies enacted
-                                   'failedElections': 0,  # Maximum of 3 failed Elections, else Chaos
+                                   'failedVotes': 0,  # Maximum of 3 failed Elections, else Chaos
                                    'fascistPolicies': 0,  # Fascists win with 3 Policies and Hitler as Chancellor
                                    'president': None,
                                    'chancellorCandidate': None,
@@ -28,47 +26,44 @@ def newgame(bot):
                                    'liberals': [],
                                    'fascists': [],
                                    'dead': [],
-                                   'fascistPlayers': 0,
+                                   'numOfFascists': 0,
                                    # 2 for 5-6 players, 3 for 7-8 players, 4 for 9-10 players, includes Hitler
-                                   'liberalPlayers': 0,
+                                   'numOfLiberals': 0,
                                    # 3-4 for 5-6 players, 4-5 for 7-8 players, 5-6 for 9-10 players
                                    'Hitler': None,  # randomly chosen among the fascist players
                                    'gameOngoing': False,
                                    'owner': 'VereorNox'}
 
 
-
-
-
 def assign_fascists(bot, int):
     if int is 5 or 6:
         bot.memory['secret_hitler']['boardState'] = 0
-        bot.memory['secret_hitler']['fascistPlayers'] = 2
+        bot.memory['secret_hitler']['numOfFascists'] = 2
     elif int is 7 or 8:
         bot.memory['secret_hitler']['boardState'] = 1
-        bot.memory['secret_hitler']['fascistPlayers'] = 3
+        bot.memory['secret_hitler']['numOfFascists'] = 3
     elif int is 9 or 10:
         bot.memory['secret_hitler']['boardState'] = 2
-        bot.memory['secret_hitler']['fascistPlayers'] = 4
+        bot.memory['secret_hitler']['numOfFascists'] = 4
     while len(bot.memory['secret_hitler']['fascists']) < int:
         if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
                 bot.memory['secret_hitler']['liberals']:
-            random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['fascists'])
+            bot.memory['secret_hitler']['fascists'].append(random.choice(bot.memory['secret_hitler']['players']))
 
 
 def assign_liberals(bot, int):
     if int is 5:
-        bot.memory['secret_hitler']['liberalPlayers'] = 3
+        bot.memory['secret_hitler']['numOfLiberals'] = 3
     if int is 6 or 7:
-        bot.memory['secret_hitler']['liberalPlayers'] = 4
+        bot.memory['secret_hitler']['numOfLiberals'] = 4
     if int is 8 or 9:
-        bot.memory['secret_hitler']['liberalPlayers'] = 5
+        bot.memory['secret_hitler']['numOfLiberals'] = 5
     if int is 10:
-        bot.memory['secret_hitler']['liberalPlayers'] = 6
+        bot.memory['secret_hitler']['numOfLiberals'] = 6
     while len(bot.memory['secret_hitler']['liberals']) < int:
         if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or \
                 bot.memory['secret_hitler']['liberals']:
-            random.choice(bot.memory['secret_hitler']['players']).append(bot.memory['secret_hitler']['liberals'])
+            bot.memory['secret_hitler']['liberals'].append(random.choice(bot.memory['secret_hitler']['players']))
 
 
 # TODO: MAKE THIS INTO ONE FUNCTION FOR FUCK'S SAKE
@@ -115,7 +110,9 @@ def enactPolicy(bot, trigger):
 
 @commands('hitler')
 def start(bot, trigger):
-    if bot.memory['secret_hitler']['gameOngoing'] is False:
+    print(bot.memory.keys())
+    print("HITLER!")
+    if 'secret_hitler' not in bot.memory or bot.memory['secret_hitler']['gameOngoing'] is False:
         newgame(bot)
         random.shuffle(bot.memory['secret_hitler']['deck'])
         bot.memory['secret_hitler']['setupPhase'] = True
@@ -124,6 +121,7 @@ def start(bot, trigger):
         bot.say(trigger.nick + " has joined up! Type .flee to leave with your tail tucked between your legs!", '#games')
     else:
         bot.say("A game is already going on. Please wait until it is finished to start another game.", '#games')
+    print("HITLEEEEER!")
 
 
 @commands('join')
@@ -138,9 +136,9 @@ def joinGame(bot, trigger):
 
 
 @commands('start')
-def start(bot, trigger):
+def startingGame(bot, trigger):
     if bot.memory['secret_hitler']['setupPhase'] is True:
-        if len(bot.memory['secret_hitler']['players']) > 5 < 10:
+        if len(bot.memory['secret_hitler']['players']) < 5 or len(bot.memory['secret_hitler']['players']) > 10:
             bot.say("Not enough or too many players. 5-10 is acceptable.", '#games')
             return
         bot.memory['secret_hitler']['setupPhase'] = False
@@ -235,7 +233,7 @@ def tallyVotes(bot, trigger):
             bot.say("The vote has failed! The presidency moves on!", '#games')
             bot.memory['secret_hitler']['failedVotes'] += 1
             if checkVotes(bot, trigger):
-                bot.memory['secret_hitler']['failedElections'] = 0
+                bot.memory['secret_hitler']['failedVotes'] = 0
                 nextPolicy = bot.memory['secret_hitler']['deck'][0]
                 bot.memory['secret_hitler']['discardPile'].append(bot.memory['secret_hitler']['deck'][0])
                 del bot.memory['secret_hitler']['deck'][0]
