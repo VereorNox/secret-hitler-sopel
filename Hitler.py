@@ -308,6 +308,7 @@ def tallyVotes(bot, trigger):
         bot.memory['secret_hitler']['vote_phase'] = False
         bot.say("The voting has closed!", '#games')
         bot.say(bot.memory['secret_hitler']['players_who_voted'], '#games')
+        del bot.memory['secret_hitler']['players_who_voted']
         if bot.memory['secret_hitler']['yesVotes'] > bot.memory['secret_hitler']['noVotes']:
             bot.say(bot.memory['secret_hitler']['chancellorCandidate']+" has been elected Chancellor!", '#games')
             bot.memory['secret_hitler']['chancellor'] = bot.memory['secret_hitler']['chancellorCandidate']
