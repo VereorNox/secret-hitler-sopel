@@ -74,6 +74,7 @@ def assign_liberals(bot, int):
 def checkVotes(bot, trigger):
     if bot.memory['secret_hitler']['failedVotes'] == 3:
         bot.say("The country is thrown into chaos! Take the top card of the deck and enact that policy!")
+        return True
 
 @commands('hitler')
 def start(bot, trigger):
@@ -184,7 +185,8 @@ def tallyVotes(bot, trigger):
         else:
             bot.say("The vote has failed! The presidency moves on!")
             bot.memory['secret_hitler']['failedVotes'] += 1
-            checkVotes(bot, trigger)
+            if checkVotes(bot, trigger) is True:
+                # TODO: Function that forces the next card to be played
 
 
 
