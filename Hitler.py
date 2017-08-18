@@ -1,6 +1,6 @@
 import copy
 
-from sopel.module import commands, require_privmsg
+from sopel.module import commands, require_privmsg, require_chanmsg
 import random
 
 
@@ -165,6 +165,7 @@ def board_state(bot, trigger):
         else:
             turn(bot, trigger)
 
+@require_chanmsg
 @commands('endorse')
 def special_election(bot, trigger):
     if bot.memory['secret_hitler']['special_election_phase'] == True and trigger.nick == bot.memory['secret_hitler']['president']:
@@ -176,7 +177,7 @@ def special_election(bot, trigger):
         else:
             bot.say("You can't choose yourself to be president again, there are term limits!", '#games')
 
-
+@require_chanmsg
 @commands('veto')
 def veto(bot, trigger):
     if bot.memory['secret_hitler']['vetoPhase'] == True:
@@ -192,6 +193,7 @@ def veto(bot, trigger):
     else:
         bot.say("Nobody can veto as of yet.", '#games')
 
+@require_chanmsg
 @commands('noveto')
 def no_veto(bot, trigger):
     if trigger.nick == bot.memory['secret_hitler']['president'] and vetoState == True:
@@ -239,7 +241,7 @@ def enactPolicy(bot, trigger):
             del bot.memory['secret_hitler']['drawn_cards'][:]
             board_state(bot, trigger)
 
-
+@require_chanmsg
 @commands('hitler')
 def prepare_to_start(bot, trigger):
     print(bot.memory.keys())
@@ -255,7 +257,7 @@ def prepare_to_start(bot, trigger):
         bot.say("A game is already going on. Please wait until it is finished to start another game.", '#games')
     print("HITLEEEEER!")
 
-
+@require_chanmsg
 @commands('join')
 def joinGame(bot, trigger):
     if bot.memory['secret_hitler']['setup_phase'] == True:
@@ -268,7 +270,7 @@ def joinGame(bot, trigger):
             bot.say(
                 "You're already signed up for the game! Type .flee to leave with your tail tucked between your legs!", '#games')
 
-
+@require_chanmsg
 @commands('start')
 def startingGame(bot, trigger):
     if bot.memory['secret_hitler']['setup_phase'] == True:
@@ -309,7 +311,7 @@ def startingGame(bot, trigger):
         bot.say(
             "No game has been opened yet. Type .hitler to start a game and .start to start once enough players have assembled!", '#games')
 
-
+@require_chanmsg
 @commands('nominate')
 def nominateChancellor(bot, trigger):
     if trigger.nick == bot.memory['secret_hitler']['president']:
@@ -398,9 +400,8 @@ def tallyVotes(bot, trigger):
                         bot.memory['secret_hitler']['liberal_policies'] += 1
                         if bot.memory['secret_hitler']['liberal_policies'] == 5:
                             bot.say("You've done it! The fascists are incapable of taking over the government due to "
-                                    "your new policies!")
+                                    "your new policies!", '#games')
                             bot.memory['secret_hitler']['game_ongoing'] = False
-                            bot.memory['secret_hitler']['']
                             return
                         else:
                             turn(bot, trigger)
@@ -412,9 +413,10 @@ def tallyVotes(bot, trigger):
     else:
         return
 
+@require_privmsg
 @commands('identity')
 def reveal_identity(bot, trigger):
-    if trigger.nick in bot.memory['secret_hitler']['president'] and bot.memory['secret_hitler']['reveal_phase'] == True:
+    if trigger.nick == bot.memory['secret_hitler']['president'] and bot.memory['secret_hitler']['reveal_phase'] == True:
         if trigger.group(2) in bot.memory['secret_hitler']['liberals']:
             bot.say("The identity of "+trigger.group(2)+" is... Liberal!", trigger.nick)
             bot.memory['secret_hitler']['reveal_phase'] = False
@@ -426,7 +428,7 @@ def reveal_identity(bot, trigger):
         else:
             bot.say("That's not a player available to reveal!")
 
-
+@require_chanmsg
 @commands('flee')
 def flee(bot, trigger):
     if bot.memory['secret_hitler']['setup_phase'] == True and trigger.nick in bot.memory['secret_hitler']['players']:
@@ -435,13 +437,13 @@ def flee(bot, trigger):
     else:
         bot.say("The game is going on or you're not signed up! Please wait until the game is over to desert!")
 
-
+@require_chanmsg
 @commands('shoot')
 def kill(bot, trigger):
     if trigger.nick == bot.memory['secret_hitler']['president'] and bot.memory['secret_hitler']['kill_phase'] == True:
         bot.memory['secret_hitler']['dead_players'].append(trigger.group(2))
         if trigger.group(2) in bot.memory['secret_hitler']['fascists']:
-            bot.say(trigger.group(2)+" has been executed by the order of the president...")
+            bot.say(trigger.group(2)+" has been executed by the order of the president...", '#games')
             bot.memory['secret_hitler']['fascists'].remove(trigger.group(2))
             bot.memory['secret_hitler']['players'].remove(trigger.group(2))
             if trigger.group(2) == bot.memory['secret_hitler']['Hitler']:
@@ -449,10 +451,11 @@ def kill(bot, trigger):
                 bot.memory['secret_hitler']['game_ongoing'] = False
             turn(bot, trigger)
         elif trigger.group(2) in bot.memory['secret_hitler']['liberals']:
-            bot.say(trigger.group(2)+" has been executed by the order of the president...")
+            bot.say(trigger.group(2)+" has been executed by the order of the president...", '#games')
             bot.memory['secret_hitler']['liberals'].remove(trigger.group(2))
             turn(bot, trigger)
 
+@require_chanmsg
 @commands('abort')
 def abortGame(bot, trigger):
     if trigger.nick == bot.memory['secret_hitler']['owner']:
@@ -460,3 +463,12 @@ def abortGame(bot, trigger):
         bot.memory['secret_hitler']['game_ongoing'] = False
         newgame(bot)
         bot.memory['secret_hitler']['setup_phase'] = False
+
+@commands('policies')
+def policy_count(bot, trigger):
+    if bot.memory['secret_hitler']['game_ongoing'] == True:
+        f_pol = len(bot.memory['secret_hitler']['fascist_policies'])
+        l_pol = len(bot.memory['secret_hitler']['liberal_policies'])
+        bot.say("There are "+f_pol+" fascist and "+l_pol+" liberal policies enacted at this point.", '#games')
+    else:
+        bot.say("There is no game going on.", '#games')
