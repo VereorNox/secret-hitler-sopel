@@ -65,10 +65,69 @@ def assign_roles(bot, n):
     bot.memory['secret_hitler']['liberals'] = copy.copy(bot.memory['secret_hitler']['player_list_copy'])
 
 
+"""
+
+def assign_fascists(bot, n):
+    
+    i = 0
+    if n is 5 or 6:
+        bot.memory['secret_hitler']['board_state'] = 0
+        bot.memory['secret_hitler']['num_of_fascists'] = 2
+    elif n is 7 or 8:
+        bot.memory['secret_hitler']['board_state'] = 1
+        bot.memory['secret_hitler']['num_of_fascists'] = 3
+    elif n is 9 or 10:
+        bot.memory['secret_hitler']['board_state'] = 2
+        bot.memory['secret_hitler']['num_of_fascists'] = 4
+    while bot.memory['secret_hitler']['num_of_fascists'] <= n:
+        if bot.memory['secret_hitler']['players'][i] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
+            (random.choice(bot.memory['secret_hitler']['players']))
+
+
+
+def assign_liberals(bot, n):
+    if n is 5:
+        bot.memory['secret_hitler']['num_of_liberals'] = 3
+    if n is 6 or 7:
+        bot.memory['secret_hitler']['num_of_liberals'] = 4
+    if n is 8 or 9:
+        bot.memory['secret_hitler']['num_of_liberals'] = 5
+    if n is 10:
+        bot.memory['secret_hitler']['num_of_liberals'] = 6
+    while bot.memory['secret_hitler']['num_of_liberals'] <= n:
+        if bot.memory['secret_hitler']['players'] not in bot.memory['secret_hitler']['fascists'] or bot.memory['secret_hitler']['liberals']:
+            bot.memory['secret_hitler']['liberals'].append(random.choice(bot.memory['secret_hitler']['players']))
+"""
+
 def checkVotes(bot, trigger):
     if bot.memory['secret_hitler']['failed_votes'] == 3:
         bot.say("The country is thrown into chaos! Take the top card of the deck and enact that policy!", '#games')
-        bot.memory['secret_hitler']['chaos_state'] = True
+        bot.memory['secret_hitler']['failed_votes'] = 0
+        nextPolicy = bot.memory['secret_hitler']['deck'][0]
+        bot.memory['secret_hitler']['discard_pile'].append(bot.memory['secret_hitler']['deck'][0])
+        del bot.memory['secret_hitler']['deck'][0]
+        if nextPolicy is 'Liberal':
+            bot.say("The enacted policy is Liberal!", '#games')
+            bot.memory['secret_hitler']['liberal_policies'] += 1
+            if bot.memory['secret_hitler']['liberal_policies'] == 5:
+                bot.say("You've done it! The fascists are incapable of taking over the government due to "
+                        "your new policies!", '#games')
+                bot.memory['secret_hitler']['game_ongoing'] = False
+                bot.say("The liberals were:", '#games')
+                bot.say(bot.memory['secret_hitler']['liberals'], '#games')
+                bot.say("The fascists were:", '#games')
+                bot.say(bot.memory['secret_hitler']['fascists'])
+                bot.say(bot.memory['secret_hitler']['Hitler'] + " was Hitler!", '#games')
+                return
+            else:
+                turn(bot, trigger)
+        else:
+            bot.say("The enacted policy is Fascist!", '#games')
+            bot.memory['secret_hitler']['fascist_policies'] += 1
+            board_state(bot, trigger)
+    else:
+        turn(bot, trigger)
+
 
 @require_privmsg
 @commands('discard')
@@ -99,6 +158,9 @@ def board_state(bot, trigger):
             bot.memory['secret_hitler']['veto_switch'] = True
             bot.say("The fascists are getting dangerous! Mr. President, .shoot someone to order their execution!", '#games')
             bot.say("You have unlocked veto power! After giving the Chancellor two cards, they may declare a .veto!", '#games')
+        elif bot.memory['secret_hitler']['fascist_policies'] == 6:
+            bot.say("A man takes the podium, his face slowly falling off to reveal an ancient evil with toothbrush "
+                    "beard. Hitler has taken over, and the government is overthrown by his party.", '#games')
         else:
             turn(bot, trigger)
     elif bot.memory['secret_hitler']['board_state'] == 1:
@@ -114,6 +176,9 @@ def board_state(bot, trigger):
             bot.memory['secret_hitler']['veto_switch'] = True
             bot.say("The fascists are getting dangerous! Mr. President, .shoot someone to order their execution!", '#games')
             bot.say("You have unlocked veto power! After giving the Chancellor two cards, they may declare a .veto!", '#games')
+        elif bot.memory['secret_hitler']['fascist_policies'] == 6:
+            bot.say("A man takes the podium, his face slowly falling off to reveal an ancient evil with toothbrush "
+                    "beard. Hitler has taken over, and the government is overthrown by his party.", '#games')
         else:
             turn(bot, trigger)
     elif bot.memory['secret_hitler']['board_state'] == 2:
@@ -131,6 +196,9 @@ def board_state(bot, trigger):
             bot.memory['secret_hitler']['veto_switch'] = True
             bot.say("The fascists are getting dangerous! Mr. President, .shoot someone to order their execution!", '#games')
             bot.say("You have unlocked veto power! After giving the Chancellor two cards, they may declare a .veto!", '#games')
+        elif bot.memory['secret_hitler']['fascist_policies'] == 6:
+            bot.say("A man takes the podium, his face slowly falling off to reveal an ancient evil with toothbrush "
+                    "beard. Hitler has taken over, and the government is overthrown by his party.", '#games')
         else:
             turn(bot, trigger)
 
@@ -372,33 +440,6 @@ def tallyVotes(bot, trigger):
             bot.memory['secret_hitler']['no_votes'] = 0
             bot.memory['secret_hitler']['failed_votes'] += 1
             checkVotes(bot, trigger)
-            if bot.memory['secret_hitler']['chaos_phase'] == True:
-                    bot.memory['secret_hitler']['failed_votes'] = 0
-                    nextPolicy = bot.memory['secret_hitler']['deck'][0]
-                    bot.memory['secret_hitler']['discard_pile'].append(bot.memory['secret_hitler']['deck'][0])
-                    del bot.memory['secret_hitler']['deck'][0]
-                    if nextPolicy is 'Liberal':
-                        bot.say("The enacted policy is Liberal!", '#games')
-                        bot.memory['secret_hitler']['liberal_policies'] += 1
-                        if bot.memory['secret_hitler']['liberal_policies'] == 5:
-                            bot.say("You've done it! The fascists are incapable of taking over the government due to "
-                                    "your new policies!", '#games')
-                            bot.memory['secret_hitler']['game_ongoing'] = False
-                            bot.say("The liberals were:", '#games')
-                            bot.say(bot.memory['secret_hitler']['liberals'], '#games')
-                            bot.say("The fascists were:", '#games')
-                            bot.say(bot.memory['secret_hitler']['fascists'])
-                            bot.say(bot.memory['secret_hitler']['Hitler'] + " was Hitler!", '#games')
-                            return
-                        else:
-                            turn(bot, trigger)
-                    else:
-                        bot.say("The enacted policy is Fascist!", '#games')
-                        bot.memory['secret_hitler']['fascist_policies'] += 1
-                        board_state(bot, trigger)
-                    bot.memory['secret_hitler']['chaos_phase'] = False
-            else:
-                turn(bot, trigger)
     else:
         return
 
