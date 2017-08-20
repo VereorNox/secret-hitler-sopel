@@ -22,7 +22,7 @@ def newgame(bot):
                                    'former_chancellor': None,
                                    'yes_votes': 0,
                                    'no_votes': 0,
-                                   'deck':['Liberal', 'Liberal', 'Liberal', 'Liberal', 'Liberal', 'Liberal', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist'],
+                                   'deck': ['Liberal', 'Liberal', 'Liberal', 'Liberal', 'Liberal', 'Liberal', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist', 'Fascist'],
                                    'drawn_cards':[],
                                    'discard_pile': [],
                                    'liberals': [],
@@ -46,7 +46,6 @@ def newgame(bot):
 
 def assign_roles(bot, n):
     i = 0
-    j = 0
     if n is 5 or 6:
         bot.memory['secret_hitler']['board_state'] = 0
         fascists = 2
@@ -239,10 +238,6 @@ def no_veto(bot, trigger):
 
 def turn(bot, trigger):
     bot.say("The next turn has started!", '#games')
-    if len(bot.memory['secret_hitler']['deck']) <= 3:
-        bot.memory['secret_hitler']['deck'] = copy.copy(bot.memory['secret_hitler']['discard_pile'])
-        random.shuffle(bot.memory['secret_hitler']['deck'])
-        del bot.memory['secret_hitler']['discard_pile'][:]
     index = bot.memory['secret_hitler']['players'].index(bot.memory['secret_hitler']['president'])+1
     bot.memory['secret_hitler']['prev_president'] = bot.memory['secret_hitler']['president']
     if bot.memory['secret_hitler']['special_election_phase'] == True:
@@ -273,14 +268,14 @@ def enactPolicy(bot, trigger):
             bot.say("The enacted policy is Liberal!", '#games')
             bot.memory['secret_hitler']['liberal_policies'] += 1
             bot.memory['secret_hitler']['drawn_cards'].remove(trigger.group(2))
-            bot.memory['secret_hitler']['discard_pile'].append(bot.memory['secret_hitler']['drawn_cards'])
+            bot.memory['secret_hitler']['discard_pile'].append(bot.memory['secret_hitler']['drawn_cards'][0])
             del bot.memory['secret_hitler']['drawn_cards'][:]
             turn(bot, trigger)
         else:
             bot.say("The enacted policy is Fascist!", '#games')
             bot.memory['secret_hitler']['fascist_policies'] += 1
             bot.memory['secret_hitler']['drawn_cards'].remove(trigger.group(2))
-            bot.memory['secret_hitler']['discard_pile'].append(bot.memory['secret_hitler']['drawn_cards'])
+            bot.memory['secret_hitler']['discard_pile'].append(bot.memory['secret_hitler']['drawn_cards'][0])
             del bot.memory['secret_hitler']['drawn_cards'][:]
             board_state(bot, trigger)
 
@@ -288,7 +283,6 @@ def enactPolicy(bot, trigger):
 @commands('hitler')
 def prepare_to_start(bot, trigger):
     print(bot.memory.keys())
-    print("HITLER!")
     if 'secret_hitler' not in bot.memory or bot.memory['secret_hitler']['game_ongoing'] == False and bot.memory['secret_hitler']['setup_phase'] == False:
         newgame(bot)
         random.shuffle(bot.memory['secret_hitler']['deck'])
@@ -298,7 +292,6 @@ def prepare_to_start(bot, trigger):
         bot.say(trigger.nick + " has joined up! Type .flee to leave with your tail tucked between your legs!", '#games')
     else:
         bot.say("A game is already going on. Please wait until it is finished to start another game.", '#games')
-    print("HITLEEEEER!")
 
 @require_chanmsg
 @commands('join')
@@ -415,6 +408,7 @@ def tallyVotes(bot, trigger):
             bot.memory['secret_hitler']['yes_votes'] = 0
             bot.memory['secret_hitler']['no_votes'] = 0
             bot.say(bot.memory['secret_hitler']['chancellor_candidate']+" has been elected Chancellor!", '#games')
+            bot.memory['secret_hitler']['failed_votes'] = 0
             bot.memory['secret_hitler']['chancellor'] = bot.memory['secret_hitler']['chancellor_candidate']
             if bot.memory['secret_hitler']['chancellor'] == bot.memory['secret_hitler']['Hitler'] and bot.memory['secret_hitler']['fascist_policies'] >= 3:
                 bot.say("A man takes the podium, his face slowly falling off to reveal an ancient evil with toothbrush "
@@ -427,6 +421,12 @@ def tallyVotes(bot, trigger):
                 bot.say(bot.memory['secret_hitler']['Hitler']+" was Hitler!", '#games')
                 return
             bot.say("It is time to enact the next policy!!", '#games')
+            if len(bot.memory['secret_hitler']['deck']) <= 3:
+                print(bot.memory['secret_hitler']['discard_pile'])
+                random.shuffle(bot.memory['secret_hitler']['discard_pile'])
+                bot.memory['secret_hitler']['deck'] = copy.copy(bot.memory['secret_hitler']['discard_pile'])
+                print(bot.memory['secret_hitler']['deck'])
+                del bot.memory['secret_hitler']['discard_pile'][:]
             bot.memory['secret_hitler']['drawn_cards'].append(bot.memory['secret_hitler']['deck'][0])
             bot.memory['secret_hitler']['drawn_cards'].append(bot.memory['secret_hitler']['deck'][1])
             bot.memory['secret_hitler']['drawn_cards'].append(bot.memory['secret_hitler']['deck'][2])
