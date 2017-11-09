@@ -24,3 +24,5 @@ The president receives the top three cards of the deck, then .discards one of th
 On certain conditions the president can .shoot a player in the channel or .identity them to find out their identity in private.
 
 .policies gives you a count of the policies enacted by now.
+
+I'm actually terrible at coding and don't even properly comement my stuff. Rip.
